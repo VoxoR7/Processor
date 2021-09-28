@@ -1,0 +1,54 @@
+REGISTER (R)	2ND. REGISTER (L)	CODE		VALUE (V)	DESCR
+
+[0-5]		NONE			00		YES		loads the value V into R					(V -> R)
+[0-5]		[0-5]			01		NO		loads the value contained in L into R				(L -> R)
+NONE		[0-5]			02		NO		load L in ACC 	 						(L -> ACC)
+NONE		NONE			03		YES		load V in ACC  							(V -> ACC)
+[0-5]		NONE			04		YES		add ACC and V and put the result in R				(ACC + V -> R)
+[0-5]		[0-5]			05		NO		add ACC and L and put the result in R				(ACC + L -> R)
+[0-5]		NONE			06		YES		subtract ACC and V and put the result in R			(ACC - V -> R)
+[0-5]		[0-5]			07		NO		subtract ACC and L and put the result in R			(ACC - L -> R)
+
+NONE		[0-5]			08		YES		saves the L register in ram at the V address			(L -> ram[V])
+[0-5]		NONE			09		YES		loads the value in ram to the V address and puts it in R	(ram[V] -> R)
+
+NONE		NONE			0A		NO		reset IC (instruction counter)					(0 -> IC)
+[0-5]		NONE			0B		NO		puts the IC value in R						(IC -> R)
+
+NONE		NONE			37		YES		loads the V value into PC					(V -> PC)	
+NONE		NONE			38		YES		loads the value V into C_ACC					(C -> C_ACC)
+NONE		[0-5]			39		NO		loads the value L into C_ACC					(L -> C_ACC)
+NONE		[0-5]			3A		YES		sets PC with the value V if L < C_ACC				(si L < C_ACC, V -> PC)
+NONE		[0-5]			3B		YES		sets PC with the value V if L <= C_ACC				(si L <= C_ACC, V -> PC)
+NONE		[0-5]			3C		YES		sets PC with the value V if L == C_ACC				(si L == C_ACC, V -> PC)
+NONE		[0-5]			3D		YES		sets PC with the value V if L != C_ACC				(si L != C_ACC, V -> PC)
+NONE		[0-5]			3E		YES		sets PC with the value V if L >= C_ACC				(si L >= C_ACC, V -> PC)
+NONE		[0-5]			3F		YES		sets PC with the value V if L > C_ACC				(si L > C_ACC, V -> PC)
+
+each instruction can be decomposed in 3 pieces:
+The first 4 bits are the register in which we want to write (R)
+The next 4 bits are the register in which we want to read (L)
+	If a field is marked NONE, you can put anything in it, the value will not be read.
+The last byte is the opcode of the desired instruction.
+
+Then, each time the next 2 bytes in the ROM will be the value used for the instruction
+
+Example :
+
+0F00 000A 1001 FFFF
+
+The first instruction puts the value 10 in the register 0:
+
+0 -> register 0
+F -> NONE for opcode 00 (the next byte), no matter
+00 -> opcode 00, refer to the table above
+
+000A -> the value 10
+
+The second one copies the value of register 0 to register 1
+
+1 -> register 1 (register in which we write)
+0 -> register 0 (register to be read)
+01 -> opcode 01, refer to the table above
+
+FFFF -> NONE for opcode 01 (the next byte), no matter
